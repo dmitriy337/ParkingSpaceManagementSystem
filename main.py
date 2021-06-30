@@ -19,15 +19,15 @@ park.unpark_vehicle(Car())
 park.get_free_cells()
 print('\n')
 
+for i in range(3):
+    park.park_vehicle(Bike())
 
-for i in range(8):
+for i in range(7):
     park.park_vehicle(Car())
-
+park.park_vehicle(Bus())
 print('\n')
 
-park.print_parking()
-for i in range(8):
-    park.unpark_vehicle(Car())
+
 
 
 park.print_parking()
