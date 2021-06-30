@@ -1,11 +1,30 @@
+from parking import ParkingLotsTypes
+from types import List
+
+
 class Vehicle():
-    pass
+    size: int
+    required_lot: List[int]
+
 
 class Bike(Vehicle):
-    pass
+
+    def __init__(self) -> None:
+        self.size = 1
+        self.required_lot = [ParkingLotsTypes.BIKE_LOT,
+                            ParkingLotsTypes.COMPACT_LOT, ParkingLotsTypes.BIG_LOT]
+
 
 class Car(Vehicle):
-    pass
+
+    def __init__(self) -> None:
+        self.size = 1
+        self.required_lot = [
+            ParkingLotsTypes.COMPACT_LOT, ParkingLotsTypes.BIG_LOT]
+
 
 class Bus(Vehicle):
-    pass
+
+    def __init__(self) -> None:
+        self.size = 5
+        self.required_lot = [ParkingLotsTypes.BIG_LOT]
