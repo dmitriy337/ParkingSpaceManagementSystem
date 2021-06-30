@@ -37,10 +37,8 @@ class ParkingLot:
 
         if vehicle == None:
             self._vehicle = None
-            print("Машина была убрана с парковочного места")
         elif self.possible_to_place(self.type_of_vehicle, vehicle):
             self._vehicle = vehicle
-            print("Машина была припаркована")
         else:
             raise VehicleIsNotPossibleToPlace
 
@@ -66,22 +64,28 @@ class ParkingRow():
         self.type_of_row = type_of_row
 
     def get_free_cells(self) -> int:
-        return len(list(
+        result =  len(list(
             filter(lambda x: not x.is_occupied, self.parking_cells)
         ))
+        print(f"Количество свободных мест: {result}")
+        return result
 
     def set_vehicle_to_cell(self, vehicle: Vehicle, count=1):
         for i in range(count):
-            cell = next(
-                filter(lambda x: not x.is_occupied, self.parking_cells))
-            self.parking_cells[self.parking_cells.index(
-                cell)].vehicle = vehicle
+            if len(list(filter(lambda x: not x.is_occupied, self.parking_cells))) > vehicle.size:
+                for vehical_size in range(vehicle.size):
+                    cell = next(
+                        filter(lambda x: not x.is_occupied, self.parking_cells))
+                    self.parking_cells[self.parking_cells.index(
+                        cell)].vehicle = vehicle
+        print("Машина была припаркована")
 
     def remove_vehicle_from_cell(self, vehicle: Vehicle):
         cell = next(
             filter(lambda x: x.is_occupied, self.parking_cells))
 
         self.parking_cells[self.parking_cells.index(cell)].vehicle = None
+        print("Машина была убрана с парковки")
 
 
 """ 
