@@ -1,5 +1,5 @@
-from parking import ParkingLotsTypes
-from types import List
+from parking.types import ParkingLotsTypes
+from typing import List
 
 
 class Vehicle():
