@@ -1,19 +1,18 @@
-from typing import List
-from vehicle import Vehicle
+from typing import List, Optional, NoReturn
+from vehicle import Vehicle, Bus, Car, Bike
 from .exceptions import VehicleIsNotPossibleToPlace, IsNotVehicle
+from itertools import chain
+from .types import ParkingLotsTypes
+import config
 
 
-class ParkingLot():
-    type_of_vehicle: int
-    _isOccupied: bool = False
-    _vehicle: Vehicle
+class ParkingLot:
 
     # Возможно ли размещение транспорта в слоте?
-
     def possible_to_place(self, type_of_vehicle: int, vehicle: Vehicle) -> bool:
         return type_of_vehicle in vehicle.required_lot
 
-    def __init__(self, type_of_vehicle, vehicle=None) -> None:
+    def __init__(self, type_of_vehicle: int, vehicle: Optional[Vehicle] = None):
         self.type_of_vehicle = type_of_vehicle
 
         if vehicle:
@@ -26,36 +25,99 @@ class ParkingLot():
 
     # Занята ли ячейка?
     @property
-    def isOccupied(self) -> bool:
-        if self._vehicle is None:
-            self._isOccupied = False
-            return self._isOccupied
-        else:
-            self._isOccupied = True
-            return self._isOccupied
-
-    @isOccupied.setter
-    def isOccupied(self, b: bool) -> bool:
-        self._isOccupied = b
+    def is_occupied(self) -> bool:
+        return bool(self.vehicle)
 
     @property
-    def vehicle(self) -> Vehicle:
-        if self._vehicle != None:
-            return self._vehicle
+    def vehicle(self) -> Optional[Vehicle]:
+        return self._vehicle
 
     @vehicle.setter
-    def vehicle(self, vehicle) -> None:
-        if isinstance(vehicle, Vehicle):
-            if self.possible_to_place(self.type_of_vehicle, vehicle):
-                self._vehicle = vehicle
-            else:
-                raise VehicleIsNotPossibleToPlace
+    def vehicle(self, vehicle) -> NoReturn:
+
+        if vehicle == None:
+            self._vehicle = None
+            print("Машина была убрана с парковочного места")
+        elif self.possible_to_place(self.type_of_vehicle, vehicle):
+            self._vehicle = vehicle
+            print("Машина была припаркована")
         else:
-            raise IsNotVehicle
+            raise VehicleIsNotPossibleToPlace
+
+    def __repr__(self) -> str:
+        if not self.is_occupied:
+            return "Empty"
+        return self.vehicle.name
+
+    def __str__(self) -> str:
+        if not self.is_occupied:
+            return "Empty"
+        return self.vehicle.name
 
 
+class ParkingRow():
+    parking_cells: List[ParkingLot] = []
+    type_of_row = None
+
+    def __init__(self, row_len, type_of_row):
+        self.parking_cells.extend(
+            {ParkingLot(type_of_vehicle=type_of_row) for i in range(row_len)}
+        )
+        self.type_of_row = type_of_row
+
+    def get_free_cells(self) -> int:
+        return len(list(
+            filter(lambda x: not x.is_occupied, self.parking_cells)
+        ))
+
+    def set_vehicle_to_cell(self, vehicle: Vehicle, count=1):
+        for i in range(count):
+            cell = next(
+                filter(lambda x: not x.is_occupied, self.parking_cells))
+            self.parking_cells[self.parking_cells.index(
+                cell)].vehicle = vehicle
+
+    def remove_vehicle_from_cell(self, vehicle: Vehicle):
+        cell = next(
+            filter(lambda x: x.is_occupied, self.parking_cells))
+
+        self.parking_cells[self.parking_cells.index(cell)].vehicle = None
+
+
+""" 
 class Parking():
-    parking: List[List[ParkingLot]]
+    parking: List[ParkingRow]
 
-    def __init__(self, parking: List[List[ParkingLot]]) -> None:
+    def __init__(self, parking: List[List[ParkingLot]]):
         self.parking = parking
+
+    def get_free_cells(self) -> dict:
+        json_to_return = {}
+        json_to_return['Bike'] = len(list(filter(lambda x: not x.is_occupied and x.type_of_vehicle == any(
+            [1, 2, 3]), chain.from_iterable(self.parking))))
+        json_to_return['Car'] = len(list(filter(lambda x: not x.is_occupied and x.type_of_vehicle == any(
+            [2, 3]), chain.from_iterable(self.parking))))
+        json_to_return['Bus'] = len(list(filter(lambda x: not x.is_occupied and x.type_of_vehicle ==
+                                    3, chain.from_iterable(self.parking)))) // config.bus_required  # Автобус может занмать несколько ячеек
+        return json_to_return
+
+    def print_free_cells(self) -> None:
+        for row in self.parking:
+            print(row)
+
+    def get_count_lots_with_vehicle(self) -> dict:
+        json_to_return = {}
+
+        json_to_return["Bike"] = len(list(filter(
+            lambda x: x.is_occupied and x.vehicle.type_of_vehicle == 1, chain.from_iterable(self.parking))))
+        json_to_return["Car"] = len(list(filter(
+            lambda x: x.is_occupied and x.vehicle.type_of_vehicle == 2, chain.from_iterable(self.parking))))
+        json_to_return["Bus"] = len(list(filter(
+            lambda x: x.is_occupied and x.vehicle.type_of_vehicle == 3, chain.from_iterable(self.parking))))
+
+        return json_to_return
+
+    def can_park(self, vehicle: Vehicle):
+        return len(list(filter(lambda x: not x.is_occupied and x.type_of_vehicle == any(
+                vehicle.required_lot), chain.from_iterable(self.parking)))) > vehicle.size
+ """
