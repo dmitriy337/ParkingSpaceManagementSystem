@@ -70,7 +70,7 @@ class ParkingRow():
         return result
 
     def can_park_vehicle(self, vehicle: Vehicle) -> bool:
-        if len(list(filter(lambda x: x.is_occupied != True, self.parking_cells))) >= vehicle.size:
+        if len(list(filter(lambda x: x.is_occupied != True, self.parking_cells))) >= vehicle.size: #Хватает ли мест для парковки?
             if self.type_of_row >= vehicle.type_of_vehicle:
                 return True
         else:
@@ -78,19 +78,19 @@ class ParkingRow():
 
     def set_vehicle_to_cell(self, vehicle: Vehicle, count=1) -> NoReturn:
         for i in range(count):
-            if len(list(filter(lambda x: not x.is_occupied, self.parking_cells))) >= vehicle.size:
+            if len(list(filter(lambda x: not x.is_occupied, self.parking_cells))) >= vehicle.size:#Проверяем, есть ли куда ставить
                 for vehical_size in range(vehicle.size):
                     cell = next(
-                        filter(lambda x: not x.is_occupied, self.parking_cells))
+                        filter(lambda x: not x.is_occupied, self.parking_cells)) # Ищем не занятые месте
                     self.parking_cells[self.parking_cells.index(
                         cell)].vehicle = vehicle
 
     def remove_vehicle_from_cell(self, vehicle: Vehicle):
-        if len(list(filter(lambda x: x.is_occupied, self.parking_cells))) >= vehicle.size:
-            for vehical_size in range(vehicle.size):
+        if len(list(filter(lambda x: x.is_occupied, self.parking_cells))) >= vehicle.size: #Проверяем, есть ли что удалять 
+            for vehical_size in range(vehicle.size): #Нужно для машин большого размера
                 try:
                     cell = next(
-                        filter(lambda x: x.is_occupied, self.parking_cells))
+                        filter(lambda x: x.is_occupied, self.parking_cells))# Ищем занятые месте
                     self.parking_cells[self.parking_cells.index(
                         cell)].vehicle = None
 
@@ -113,7 +113,8 @@ class Parking():
     def get_free_cells(self):
         json_to_return = {"For bike places": 0,
                           "Compact places": 0, "Big places": 0}
-        for row in self.parking:
+        for row in self.parking: #Для каждого ряда ищем парковочные места
+
             if row.type_of_row == ParkingLotsTypes.BIKE_LOT:
                 json_to_return["For bike places"] += row.get_free_cells()
             if row.type_of_row == ParkingLotsTypes.COMPACT_LOT:
@@ -122,19 +123,22 @@ class Parking():
                 json_to_return["Big places"] += row.get_free_cells()
         print(json_to_return)
 
+    #Припарковать машину
     def park_vehicle(self, vehicle: Vehicle):
         for row in self.parking:
-            if row.type_of_row >= vehicle.type_of_vehicle and row.can_park_vehicle(vehicle):
+            if row.can_park_vehicle(vehicle): #Проверяем можем ли мы припарковать машину
                 row.set_vehicle_to_cell(vehicle)
                 break
         print("Машина была припаркована")
 
+    #Убрать машину с парковки
     def unpark_vehicle(self, vehicle: Vehicle):
         for row in self.parking:
             if row.type_of_row >= vehicle.type_of_vehicle:
                 row.remove_vehicle_from_cell(vehicle)
         print("Машина была убрана с парковки")
 
+    #Красивый вывод парковочных мест
     def print_parking(self):
         for row in self.parking:
             print(row)
