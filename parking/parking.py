@@ -81,11 +81,19 @@ class ParkingRow():
         print("Машина была припаркована")
 
     def remove_vehicle_from_cell(self, vehicle: Vehicle):
-        cell = next(
-            filter(lambda x: x.is_occupied, self.parking_cells))
+        for vehical_size in range(vehicle.size):
+                    cell = next(
+                        filter(lambda x: x.is_occupied, self.parking_cells))
 
-        self.parking_cells[self.parking_cells.index(cell)].vehicle = None
+                    self.parking_cells[self.parking_cells.index(cell)].vehicle = None
         print("Машина была убрана с парковки")
+
+
+        #cell = next(
+        #    filter(lambda x: x.is_occupied, self.parking_cells))
+
+        #self.parking_cells[self.parking_cells.index(cell)].vehicle = None
+        #print("Машина была убрана с парковки")
 
 
 """ 
